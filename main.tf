@@ -11,8 +11,9 @@
  * ## Usage
  *
  * ```hcl
- * module "iam_keys_check" {
- *   source = "../../modules/aws-iam-keys-check"
+ * module "iam-keys-check" {
+ *   source  = "trussworks/iam-keys-check/aws"
+ *   version = "1.0.0"
  *
  *   environment       = "prod"
  *   interval_minutes  = "1440"
