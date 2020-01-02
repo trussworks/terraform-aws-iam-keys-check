@@ -62,7 +62,7 @@ data "aws_iam_policy_document" "main" {
       "logs:PutLogEvents",
     ]
 
-    resources = ["arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:/aws/lambda/${local.name}-${var.environment}:*"]
+    resources = ["arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:/aws/lambda/${local.name}:*"]
   }
 
   statement {
@@ -93,15 +93,15 @@ data "aws_iam_policy_document" "main" {
 }
 
 resource "aws_iam_role" "main" {
-  name               = "lambda-${local.name}-${var.environment}"
-  assume_role_policy = "${data.aws_iam_policy_document.assume_role.json}"
+  name               = "lambda-${local.name}"
+  assume_role_policy = data.aws_iam_policy_document.assume_role.json
 }
 
 resource "aws_iam_role_policy" "main" {
-  name = "lambda-${local.name}-${var.environment}"
-  role = "${aws_iam_role.main.id}"
+  name = "lambda-${local.name}"
+  role = aws_iam_role.main.id
 
-  policy = "${data.aws_iam_policy_document.main.json}"
+  policy = data.aws_iam_policy_document.main.json
 }
 
 #
@@ -109,14 +109,14 @@ resource "aws_iam_role_policy" "main" {
 #
 
 resource "aws_cloudwatch_event_rule" "main" {
-  name                = "${local.name}-${var.environment}"
+  name                = local.name
   description         = "scheduled trigger for ${local.name}"
   schedule_expression = "rate(${var.interval_minutes} minutes)"
 }
 
 resource "aws_cloudwatch_event_target" "main" {
-  rule = "${aws_cloudwatch_event_rule.main.name}"
-  arn  = "${aws_lambda_function.main.arn}"
+  rule = aws_cloudwatch_event_rule.main.name
+  arn  = aws_lambda_function.main.arn
 }
 
 #
@@ -125,13 +125,10 @@ resource "aws_cloudwatch_event_target" "main" {
 
 resource "aws_cloudwatch_log_group" "main" {
   # This name must match the lambda function name and should not be changed
-  name              = "/aws/lambda/${local.name}-${var.environment}"
-  retention_in_days = "${var.cloudwatch_logs_retention_days}"
+  name              = "/aws/lambda/${local.name}"
+  retention_in_days = var.cloudwatch_logs_retention_days
 
-  tags = {
-    Name        = "${local.name}-${var.environment}"
-    Environment = "${var.environment}"
-  }
+  tags = "${merge(var.tags, map("Name", local.name))}"
 }
 
 #
@@ -141,38 +138,36 @@ resource "aws_cloudwatch_log_group" "main" {
 resource "aws_lambda_function" "main" {
   depends_on = ["aws_cloudwatch_log_group.main"]
 
-  s3_bucket = "${var.s3_bucket}"
+  s3_bucket = var.s3_bucket
   s3_key    = "${local.pkg}/${var.version_to_deploy}/${local.pkg}.zip"
 
-  function_name = "${local.name}-${var.environment}"
-  role          = "${aws_iam_role.main.arn}"
-  handler       = "${local.name}"
+  function_name = local.name
+  role          = aws_iam_role.main.arn
+  handler       = local.name
   runtime       = "go1.x"
   memory_size   = "128"
   timeout       = "60"
 
   environment {
     variables = {
-      DOCUMENTATION_URL     = "https://github.com/transcom/ppp-infra/tree/master/transcom-ppp#rotating-aws-access-keys"
+      DOCUMENTATION_URL     = var.doc_url
       LAMBDA                = "true"
-      SLACK_CHANNEL         = "${var.slack_channel}"
+      SLACK_CHANNEL         = var.slack_channel
       SLACK_EMOJI           = ":old_key:"
-      SSM_SLACK_WEBHOOK_URL = "${var.ssm_slack_webhook_url}"
+      SSM_SLACK_WEBHOOK_URL = var.ssm_slack_webhook_url
     }
   }
 
-  tags = {
-    Name        = "${local.name}-${var.environment}"
-    Environment = "${var.environment}"
-  }
+  tags = "${merge(var.tags, map("Name", local.name))}"
+
 }
 
 resource "aws_lambda_permission" "main" {
-  statement_id = "${local.name}-${var.environment}"
+  statement_id = local.name
 
   action        = "lambda:InvokeFunction"
-  function_name = "${aws_lambda_function.main.function_name}"
+  function_name = aws_lambda_function.main.function_name
 
   principal  = "events.amazonaws.com"
-  source_arn = "${aws_cloudwatch_event_rule.main.arn}"
+  source_arn = aws_cloudwatch_event_rule.main.arn
 }

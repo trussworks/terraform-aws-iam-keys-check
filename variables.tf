@@ -4,8 +4,10 @@ variable "cloudwatch_logs_retention_days" {
   type        = "string"
 }
 
-variable "environment" {
-  description = "Environment tag, e.g prod."
+variable "doc_url" {
+  default     = "https://example.com"
+  description = "URL for documentation on how to rotate keys."
+  type        = "string"
 }
 
 variable "interval_minutes" {
@@ -32,4 +34,10 @@ variable "ssm_slack_webhook_url" {
 variable "slack_channel" {
   description = "Slack channel to send alert to"
   type        = "string"
+}
+
+variable "tags" {
+  default     = {}
+  description = "Map of additional tags to apply to resources; 'Name' tag automatically applied."
+  type        = map(string)
 }
