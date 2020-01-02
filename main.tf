@@ -13,14 +13,17 @@
  * ```hcl
  * module "iam-keys-check" {
  *   source  = "trussworks/iam-keys-check/aws"
- *   version = "1.0.0"
+ *   version = "2.0.0"
  *
- *   environment       = "prod"
  *   interval_minutes  = "1440"
  *   s3_bucket         = "lambda-builds-us-west-2"
- *   version_to_deploy = "2.6"
+ *   version_to_deploy = "2.8"
  *   ssm_slack_webhook_url = "slack-webhook-url"
  *   slack_channel = "infra"
+ *
+ *   tags = {
+ *     Owner = "infra"
+ *   }
  * }
  * ```
  */
