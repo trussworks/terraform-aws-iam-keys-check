@@ -7,6 +7,12 @@ Creates the following resources:
 * CloudWatch Event to trigger function on a schedule.
 * AWS Lambda function to actually check age of IAM Access Keys and send alert to slack if any keys are older than 90 days.
 
+## Terraform Versions
+
+Terraform 0.12: Pin module to ~> 2.0. Submit pull-requests to `master` branch.
+
+Terraform 0.11: Pin module to ~> 1.0. Submit pull-requests to `terraform011` branch.
+
 ## Usage
 
 ```hcl
