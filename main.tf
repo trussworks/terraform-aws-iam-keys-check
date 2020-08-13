@@ -1,33 +1,3 @@
-/**
- * Creates an AWS Lambda function to check that IAM Access Keys are not older than 90 days
- * on a scheduled interval using [truss-aws-tools](https://github.com/trussworks/truss-aws-tools).
- *
- * Creates the following resources:
- *
- * * IAM role for Lambda function to check age of IAM Access Keys.
- * * CloudWatch Event to trigger function on a schedule.
- * * AWS Lambda function to actually check age of IAM Access Keys and send alert to slack if any keys are older than 90 days.
- *
- * ## Usage
- *
- * ```hcl
- * module "iam-keys-check" {
- *   source  = "trussworks/iam-keys-check/aws"
- *   version = "2.0.0"
- *
- *   interval_minutes  = "1440"
- *   s3_bucket         = "lambda-builds-us-west-2"
- *   version_to_deploy = "2.8"
- *   ssm_slack_webhook_url = "slack-webhook-url"
- *   slack_channel = "infra"
- *
- *   tags = {
- *     Owner = "infra"
- *   }
- * }
- * ```
- */
-
 locals {
   pkg  = "truss-aws-tools"
   name = "iam-keys-check"
