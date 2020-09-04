@@ -1,3 +1,9 @@
+# Deprecation notice
+
+This module is no longer being upgraded or maintained. We recommend you use
+[terraform-aws-iam-sleuth](https://github.com/trussworks/terraform-aws-iam-sleuth)
+instead.
+
 Creates an AWS Lambda function to check that IAM Access Keys are not older than 90 days
 on a scheduled interval using [truss-aws-tools](https://github.com/trussworks/truss-aws-tools).
 
